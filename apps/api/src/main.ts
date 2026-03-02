@@ -101,10 +101,10 @@ async function bootstrap() {
     });
 
     const port = process.env.PORT || 3038;
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0');
 
-    console.log(`🚀 Application is running on: http://localhost:${port}/api`);
-    console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
+    console.log(`🚀 Application is running on: http://0.0.0.0:${port}/api`);
+    console.log(`📚 Swagger docs: http://0.0.0.0:${port}/api/docs`);
 }
 
 bootstrap();
