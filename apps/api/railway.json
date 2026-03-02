@@ -1,7 +1,8 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
-        "buildCommand": "npm install --include=dev && npx nest build"
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "Dockerfile"
     },
     "deploy": {
         "startCommand": "node dist/main",
