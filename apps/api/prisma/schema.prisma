@@ -1,0 +1,1044 @@
+// 智慧食堂数据库 Schema (Prisma)
+// Version: 2.0.0 - Enhanced with soft delete, audit logs, state transition logs, data-permission columns
+// Last Updated: 2026-02-04T13:47:02+08:00
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// 1. 用户与认证 (User & Auth)
+// =============================================================================
+
+model User {
+  id           String             @id @default(uuid())
+  staffId      String             @unique @map("staff_id") @db.VarChar(20)
+  name         String             @db.VarChar(50)
+  phone        String             @db.VarChar(11)
+  avatar       String?            @db.VarChar(500)
+  // Data Permission Columns
+  deptId       String?            @map("dept_id")
+  dept         Department?        @relation(fields: [deptId], references: [id])
+  canteenId    String?            @map("canteen_id")
+  siteId       String?            @map("site_id")
+  // Status
+  regStatus    RegStatus          @default(NONE) @map("reg_status")
+  status       UserStatus         @default(ACTIVE)
+  balance      Decimal            @default(0.00) @db.Decimal(12, 2)
+  frozenAt     DateTime?          @map("frozen_at")
+  birthday     DateTime?          @db.Date
+  retiredDate  DateTime?          @map("retired_date") @db.Date
+  // Soft Delete & Audit
+  isDeleted    Boolean            @default(false) @map("is_deleted")
+  deletedAt    DateTime?          @map("deleted_at")
+  deletedBy    String?            @map("deleted_by")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  createdBy    String?            @map("created_by")
+  updatedBy    String?            @map("updated_by")
+
+  // Relations
+  walletLogs       WalletLog[]
+  orders           Order[]
+  reservations     Reservation[]
+  queues           Queue[]
+  feedbacks        Feedback[]
+  coupons          UserCoupon[]
+  registrations    Registration[]
+  blacklistRecords BlacklistRecord[]
+  appeals          Appeal[]
+
+  @@index([deptId])
+  @@index([canteenId])
+  @@index([siteId])
+  @@index([isDeleted])
+  @@map("users")
+}
+
+enum RegStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  FROZEN
+  RESIGNED
+}
+
+model AdminUser {
+  id          String      @id @default(uuid())
+  username    String      @unique @db.VarChar(50)
+  password    String      @db.VarChar(255)
+  name        String      @db.VarChar(50)
+  phone       String?     @db.VarChar(11)
+  email       String?     @db.VarChar(100)
+  avatar      String?     @db.VarChar(500)
+  // Data Permission
+  deptId      String?     @map("dept_id")
+  canteenId   String?     @map("canteen_id")
+  siteId      String?     @map("site_id")
+  status      AdminStatus @default(ACTIVE)
+  lastLoginAt DateTime?   @map("last_login_at")
+  // Soft Delete
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  deletedAt   DateTime?   @map("deleted_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  roles     AdminUserRole[]
+  auditLogs AuditLog[]
+
+  @@index([isDeleted])
+  @@map("admin_users")
+}
+
+enum AdminStatus {
+  ACTIVE
+  DISABLED
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(50)
+  description String?  @db.VarChar(200)
+  isSystem    Boolean  @default(false) @map("is_system")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+  adminUsers  AdminUserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique @db.VarChar(100)
+  name        String   @db.VarChar(100)
+  module      String   @db.VarChar(50)
+  description String?  @db.VarChar(200)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model AdminUserRole {
+  id        String    @id @default(uuid())
+  adminId   String    @map("admin_id")
+  roleId    String    @map("role_id")
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+  role      Role      @relation(fields: [roleId], references: [id])
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@unique([adminId, roleId])
+  @@map("admin_user_roles")
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// =============================================================================
+// 2. 注册审批流 (Registration Approval) + State Transition
+// =============================================================================
+
+model Registration {
+  id           String                 @id @default(uuid())
+  userId       String?                @map("user_id")
+  user         User?                  @relation(fields: [userId], references: [id])
+  name         String                 @db.VarChar(50)
+  phone        String                 @db.VarChar(11)
+  staffId      String                 @map("staff_id") @db.VarChar(20)
+  deptId       String?                @map("dept_id")
+  dept         Department?            @relation(fields: [deptId], references: [id])
+  idPhoto      String?                @map("id_photo") @db.VarChar(500)
+  status       RegistrationStatus     @default(PENDING)
+  rejectReason String?                @map("reject_reason") @db.VarChar(500)
+  approvedBy   String?                @map("approved_by")
+  approvedAt   DateTime?              @map("approved_at")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+
+  // State Transition Logs
+  stateTransitions RegistrationStateLog[]
+
+  @@map("registrations")
+}
+
+enum RegistrationStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// State Transition Log for Registration Approval
+model RegistrationStateLog {
+  id             String             @id @default(uuid())
+  registrationId String             @map("registration_id")
+  registration   Registration       @relation(fields: [registrationId], references: [id])
+  fromStatus     RegistrationStatus @map("from_status")
+  toStatus       RegistrationStatus @map("to_status")
+  operatorId     String             @map("operator_id")
+  operatorName   String?            @map("operator_name") @db.VarChar(50)
+  reason         String?            @db.VarChar(500)
+  createdAt      DateTime           @default(now()) @map("created_at")
+
+  @@index([registrationId])
+  @@map("registration_state_logs")
+}
+
+// =============================================================================
+// 3. 组织架构 (Organization)
+// =============================================================================
+
+model Department {
+  id        String       @id @default(uuid())
+  parentId  String?      @map("parent_id")
+  parent    Department?  @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children  Department[] @relation("DeptHierarchy")
+  name      String       @db.VarChar(100)
+  managerId String?      @map("manager_id")
+  // Data Permission
+  canteenId String?      @map("canteen_id")
+  siteId    String?      @map("site_id")
+  sortOrder Int          @default(0) @map("sort_order")
+  // Soft Delete
+  isDeleted Boolean      @default(false) @map("is_deleted")
+  deletedAt DateTime?    @map("deleted_at")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  createdBy String?      @map("created_by")
+  updatedBy String?      @map("updated_by")
+
+  users         User[]
+  registrations Registration[]
+
+  @@index([isDeleted])
+  @@map("departments")
+}
+
+model OrgChangeHistory {
+  id           String   @id @default(uuid())
+  departmentId String   @map("department_id")
+  changeType   String   @map("change_type") @db.VarChar(50) // CREATE, UPDATE, DELETE, MOVE
+  beforeValue  Json?    @map("before_value")
+  afterValue   Json?    @map("after_value")
+  operatorId   String   @map("operator_id")
+  operatorName String?  @map("operator_name") @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([departmentId])
+  @@map("org_change_history")
+}
+
+// =============================================================================
+// 4. 资源管理 (Canteen & Dishes)
+// =============================================================================
+
+model Canteen {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(100)
+  location  String    @db.Text
+  // Data Permission
+  siteId    String?   @map("site_id")
+  isOpen    Boolean   @default(true) @map("is_open")
+  openHours Json?     @map("open_hours")
+  sortOrder Int       @default(0) @map("sort_order")
+  // Soft Delete
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  dishes  Dish[]
+  orders  Order[]
+  devices Device[]
+  menus   Menu[]
+
+  @@index([siteId])
+  @@index([isDeleted])
+  @@map("canteens")
+}
+
+model DishCategory {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(50)
+  sortOrder Int       @default(0) @map("sort_order")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  dishes Dish[]
+
+  @@map("dish_categories")
+}
+
+model Dish {
+  id          String        @id @default(uuid())
+  canteenId   String        @map("canteen_id")
+  canteen     Canteen       @relation(fields: [canteenId], references: [id])
+  categoryId  String?       @map("category_id")
+  category    DishCategory? @relation(fields: [categoryId], references: [id])
+  name        String        @db.VarChar(100)
+  description String?       @db.Text
+  imageUrl    String?       @map("image_url") @db.VarChar(500)
+  price       Decimal       @db.Decimal(8, 2)
+  stock       Int           @default(0)
+  tags        Json?
+  // Publish Status
+  publishStatus DishPublishStatus @default(DRAFT) @map("publish_status")
+  publishedAt   DateTime?         @map("published_at")
+  publishedBy   String?           @map("published_by")
+  isAvailable   Boolean           @default(true) @map("is_available")
+  sortOrder     Int               @default(0) @map("sort_order")
+  // Soft Delete
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+
+  orderItems       OrderItem[]
+  stateTransitions DishStateLog[]
+
+  @@index([canteenId])
+  @@index([isDeleted])
+  @@map("dishes")
+}
+
+enum DishPublishStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  UNPUBLISHED
+  REJECTED
+}
+
+/// State Transition Log for Dish Publish
+model DishStateLog {
+  id           String            @id @default(uuid())
+  dishId       String            @map("dish_id")
+  dish         Dish              @relation(fields: [dishId], references: [id])
+  fromStatus   DishPublishStatus @map("from_status")
+  toStatus     DishPublishStatus @map("to_status")
+  operatorId   String            @map("operator_id")
+  operatorName String?           @map("operator_name") @db.VarChar(50)
+  reason       String?           @db.VarChar(500)
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  @@index([dishId])
+  @@map("dish_state_logs")
+}
+
+model MealType {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  code      String   @unique @db.VarChar(20) // breakfast, lunch, dinner
+  startTime String   @map("start_time") @db.VarChar(5)
+  endTime   String   @map("end_time") @db.VarChar(5)
+  sortOrder Int      @default(0) @map("sort_order")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reservations Reservation[]
+  capacities   ReservationCapacity[]
+
+  @@map("meal_types")
+}
+
+model Menu {
+  id          String       @id @default(uuid())
+  name        String       @db.VarChar(100)
+  canteenId   String       @map("canteen_id")
+  canteen     Canteen      @relation(fields: [canteenId], references: [id])
+  mealTypeId  String       @map("meal_type_id")
+  menuDate    DateTime     @map("menu_date") @db.Date
+  status      MenuStatus   @default(DRAFT)
+  publishedAt DateTime?    @map("published_at")
+  publishedBy String?      @map("published_by")
+  // Soft Delete
+  isDeleted   Boolean      @default(false) @map("is_deleted")
+  deletedAt   DateTime?    @map("deleted_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  createdBy   String?      @map("created_by")
+  updatedBy   String?      @map("updated_by")
+
+  dishes MenuDish[]
+
+  @@unique([canteenId, menuDate, mealTypeId])
+  @@index([canteenId])
+  @@index([isDeleted])
+  @@map("menus")
+}
+
+enum MenuStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+model MenuDish {
+  id        String   @id @default(uuid())
+  menuId    String   @map("menu_id")
+  menu      Menu     @relation(fields: [menuId], references: [id])
+  dishId    String   @map("dish_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([menuId, dishId])
+  @@index([menuId])
+  @@map("menu_dishes")
+}
+
+// =============================================================================
+// 5. 交易与流水 (Transactions)
+// =============================================================================
+
+model WalletLog {
+  id           String        @id @default(uuid())
+  userId       String        @map("user_id")
+  user         User          @relation(fields: [userId], references: [id])
+  amount       Decimal       @db.Decimal(12, 2)
+  type         WalletLogType
+  method       PaymentMethod?
+  relatedOrder String?       @map("related_order_id")
+  balanceAfter Decimal       @map("balance_after") @db.Decimal(12, 2)
+  remark       String?       @db.VarChar(200)
+  requestId    String?       @unique @map("request_id") // Idempotent key
+  // Data Permission
+  deptId       String?       @map("dept_id")
+  canteenId    String?       @map("canteen_id")
+  siteId       String?       @map("site_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  createdBy    String?       @map("created_by")
+
+  @@index([userId, createdAt])
+  @@index([deptId])
+  @@index([canteenId])
+  @@map("wallet_logs")
+}
+
+enum WalletLogType {
+  RECHARGE
+  PAYMENT
+  REFUND
+  ADJUSTMENT
+  TRANSFER
+  CORRECTION
+}
+
+enum PaymentMethod {
+  BALANCE
+  WECHAT
+  CARD
+  FACE
+  CASH
+}
+
+model Order {
+  id          String       @id @default(uuid())
+  orderNo     String       @unique @map("order_no") @db.VarChar(32)
+  userId      String       @map("user_id")
+  user        User         @relation(fields: [userId], references: [id])
+  canteenId   String       @map("canteen_id")
+  canteen     Canteen      @relation(fields: [canteenId], references: [id])
+  // Data Permission
+  deptId      String?      @map("dept_id")
+  siteId      String?      @map("site_id")
+  totalAmount Decimal      @map("total_amount") @db.Decimal(12, 2)
+  paidAmount  Decimal?     @map("paid_amount") @db.Decimal(12, 2)
+  status      OrderStatus  @default(PENDING)
+  payMethod   PaymentMethod? @map("pay_method")
+  pickupCode  String?      @map("pickup_code") @db.VarChar(10)
+  remark      String?      @db.VarChar(200)
+  requestId   String?      @unique @map("request_id") // Idempotent key
+  paidAt      DateTime?    @map("paid_at")
+  completedAt DateTime?    @map("completed_at")
+  cancelledAt DateTime?    @map("cancelled_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  items   OrderItem[]
+  refunds RefundApplication[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([canteenId])
+  @@index([deptId])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  CORRECTED
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  orderId  String  @map("order_id")
+  order    Order   @relation(fields: [orderId], references: [id])
+  dishId   String  @map("dish_id")
+  dish     Dish    @relation(fields: [dishId], references: [id])
+  dishName String  @map("dish_name") @db.VarChar(100)
+  price    Decimal @db.Decimal(8, 2)
+  quantity Int     @default(1)
+  subtotal Decimal @db.Decimal(12, 2)
+
+  @@map("order_items")
+}
+
+// =============================================================================
+// 6. 退款审核流 (Refund) + State Transition
+// =============================================================================
+
+model RefundApplication {
+  id           String       @id @default(uuid())
+  orderId      String       @map("order_id")
+  order        Order        @relation(fields: [orderId], references: [id])
+  applicantId  String       @map("applicant_id")
+  amount       Decimal      @db.Decimal(12, 2)
+  reason       String       @db.VarChar(500)
+  status       RefundStatus @default(PENDING)
+  requestId    String?      @unique @map("request_id") // Idempotent key
+  applyTime    DateTime     @default(now()) @map("apply_time")
+  auditTime    DateTime?    @map("audit_time")
+  auditorId    String?      @map("auditor_id")
+  auditRemark  String?      @map("audit_remark") @db.VarChar(500)
+  rejectReason String?      @map("reject_reason") @db.VarChar(500)
+  executedAt   DateTime?    @map("executed_at")
+  // Data Permission
+  deptId       String?      @map("dept_id")
+  canteenId    String?      @map("canteen_id")
+  siteId       String?      @map("site_id")
+
+  stateTransitions RefundStateLog[]
+
+  @@index([status])
+  @@index([canteenId])
+  @@map("refund_applications")
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+/// State Transition Log for Refund
+model RefundStateLog {
+  id           String       @id @default(uuid())
+  refundId     String       @map("refund_id")
+  refund       RefundApplication @relation(fields: [refundId], references: [id])
+  fromStatus   RefundStatus @map("from_status")
+  toStatus     RefundStatus @map("to_status")
+  operatorId   String       @map("operator_id")
+  operatorName String?      @map("operator_name") @db.VarChar(50)
+  reason       String?      @db.VarChar(500)
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  @@index([refundId])
+  @@map("refund_state_logs")
+}
+
+// =============================================================================
+// 7. 申诉处理流 (Appeal) + State Transition
+// =============================================================================
+
+model Appeal {
+  id           String       @id @default(uuid())
+  userId       String       @map("user_id")
+  user         User         @relation(fields: [userId], references: [id])
+  type         AppealType
+  relatedId    String?      @map("related_id") // 关联订单/预约ID
+  content      String       @db.Text
+  images       Json?
+  status       AppealStatus @default(SUBMITTED)
+  rejectReason String?      @map("reject_reason") @db.VarChar(500)
+  resolution   String?      @db.VarChar(500)
+  handlerId    String?      @map("handler_id")
+  handledAt    DateTime?    @map("handled_at")
+  // Data Permission
+  deptId       String?      @map("dept_id")
+  canteenId    String?      @map("canteen_id")
+  siteId       String?      @map("site_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  stateTransitions AppealStateLog[]
+
+  @@index([status])
+  @@index([userId])
+  @@map("appeals")
+}
+
+enum AppealType {
+  BREACH      // 失约申诉
+  REFUND      // 退款申诉
+  SERVICE     // 服务申诉
+  OTHER
+}
+
+enum AppealStatus {
+  SUBMITTED
+  PENDING
+  PROCESSING
+  REJECTED
+  RESOLVED
+}
+
+/// State Transition Log for Appeal
+model AppealStateLog {
+  id           String       @id @default(uuid())
+  appealId     String       @map("appeal_id")
+  appeal       Appeal       @relation(fields: [appealId], references: [id])
+  fromStatus   AppealStatus @map("from_status")
+  toStatus     AppealStatus @map("to_status")
+  operatorId   String       @map("operator_id")
+  operatorName String?      @map("operator_name") @db.VarChar(50)
+  reason       String?      @db.VarChar(500)
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  @@index([appealId])
+  @@map("appeal_state_logs")
+}
+
+// =============================================================================
+// 8. 预约与排队 (Reservations & Queue)
+// =============================================================================
+
+model Reservation {
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  user        User              @relation(fields: [userId], references: [id])
+  mealTypeId  String            @map("meal_type_id")
+  mealType    MealType          @relation(fields: [mealTypeId], references: [id])
+  mealDate    DateTime          @map("meal_date") @db.Date
+  status      ReservationStatus @default(PENDING)
+  usedAt      DateTime?         @map("used_at")
+  cancelledAt DateTime?         @map("cancelled_at")
+  // Data Permission
+  deptId      String?           @map("dept_id")
+  canteenId   String?           @map("canteen_id")
+  siteId      String?           @map("site_id")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@unique([userId, mealDate, mealTypeId])
+  @@index([mealDate, mealTypeId])
+  @@index([canteenId])
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+model ReservationCapacity {
+  id         String   @id @default(uuid())
+  mealTypeId String   @map("meal_type_id")
+  mealType   MealType @relation(fields: [mealTypeId], references: [id])
+  mealDate   DateTime @map("meal_date") @db.Date
+  canteenId  String?  @map("canteen_id")
+  capacity   Int
+  reserved   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([mealDate, mealTypeId, canteenId])
+  @@map("reservation_capacities")
+}
+
+model Queue {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  user        User        @relation(fields: [userId], references: [id])
+  serviceType String      @map("service_type") @db.VarChar(20)
+  queueNumber String      @map("queue_number") @db.VarChar(10)
+  status      QueueStatus @default(WAITING)
+  calledAt    DateTime?   @map("called_at")
+  finishedAt  DateTime?   @map("finished_at")
+  canteenId   String?     @map("canteen_id")
+  siteId      String?     @map("site_id")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  @@index([serviceType, status])
+  @@map("queues")
+}
+
+enum QueueStatus {
+  WAITING
+  CALLING
+  FINISHED
+  SKIPPED
+}
+
+// =============================================================================
+// 9. 优惠券 (Coupons)
+// =============================================================================
+
+model CouponTemplate {
+  id          String     @id @default(uuid())
+  code        String     @unique @db.VarChar(50)
+  name        String     @db.VarChar(100)
+  type        CouponType
+  value       Decimal    @db.Decimal(8, 2)
+  minAmount   Decimal?   @map("min_amount") @db.Decimal(8, 2)
+  maxDiscount Decimal?   @map("max_discount") @db.Decimal(8, 2)
+  validDays   Int        @map("valid_days")
+  rules       String?    @db.Text
+  isActive    Boolean    @default(true) @map("is_active")
+  isDeleted   Boolean    @default(false) @map("is_deleted")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  userCoupons UserCoupon[]
+
+  @@map("coupon_templates")
+}
+
+enum CouponType {
+  CASH
+  DISCOUNT
+}
+
+model UserCoupon {
+  id         String           @id @default(uuid())
+  userId     String           @map("user_id")
+  user       User             @relation(fields: [userId], references: [id])
+  templateId String           @map("template_id")
+  template   CouponTemplate   @relation(fields: [templateId], references: [id])
+  status     UserCouponStatus @default(UNUSED)
+  usedAt     DateTime?        @map("used_at")
+  expireAt   DateTime         @map("expire_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, status])
+  @@map("user_coupons")
+}
+
+enum UserCouponStatus {
+  UNUSED
+  USED
+  EXPIRED
+}
+
+// =============================================================================
+// 10. 反馈 (Feedback)
+// =============================================================================
+
+model Feedback {
+  id        String         @id @default(uuid())
+  userId    String         @map("user_id")
+  user      User           @relation(fields: [userId], references: [id])
+  type      FeedbackType
+  content   String         @db.Text
+  relatedId String?        @map("related_id")
+  images    Json?
+  status    FeedbackStatus @default(PENDING)
+  reply     String?        @db.Text
+  repliedBy String?        @map("replied_by")
+  repliedAt DateTime?      @map("replied_at")
+  // Data Permission
+  deptId    String?        @map("dept_id")
+  canteenId String?        @map("canteen_id")
+  siteId    String?        @map("site_id")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("feedbacks")
+}
+
+enum FeedbackType {
+  SUGGESTION
+  COMPLAINT
+  APPEAL
+}
+
+enum FeedbackStatus {
+  PENDING
+  PROCESSING
+  RESOLVED
+  CLOSED
+}
+
+// =============================================================================
+// 11. 黑名单 (Blacklist)
+// =============================================================================
+
+model BlacklistRecord {
+  id         String          @id @default(uuid())
+  userId     String          @map("user_id")
+  user       User            @relation(fields: [userId], references: [id])
+  type       BlacklistType
+  reason     String          @db.VarChar(500)
+  deadline   DateTime?       @db.Date
+  status     BlacklistStatus @default(ACTIVE)
+  liftReason String?         @map("lift_reason") @db.VarChar(500)
+  liftedBy   String?         @map("lifted_by")
+  liftedAt   DateTime?       @map("lifted_at")
+  // Data Permission
+  deptId     String?         @map("dept_id")
+  canteenId  String?         @map("canteen_id")
+  siteId     String?         @map("site_id")
+  createdBy  String          @map("created_by")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("blacklist_records")
+}
+
+enum BlacklistType {
+  TEMPORARY
+  PERMANENT
+}
+
+enum BlacklistStatus {
+  ACTIVE
+  LIFTED
+}
+
+// =============================================================================
+// 12. 设备管理 (Devices)
+// =============================================================================
+
+model Device {
+  id            String       @id @default(uuid())
+  sn            String       @unique @db.VarChar(50)
+  name          String       @db.VarChar(100)
+  type          DeviceType
+  ip            String?      @db.VarChar(15)
+  canteenId     String?      @map("canteen_id")
+  canteen       Canteen?     @relation(fields: [canteenId], references: [id])
+  siteId        String?      @map("site_id")
+  status        DeviceStatus @default(OFFLINE)
+  version       String?      @db.VarChar(50)
+  lastHeartbeat DateTime?    @map("last_heartbeat")
+  isDeleted     Boolean      @default(false) @map("is_deleted")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  commandLogs DeviceCommandLog[]
+
+  @@index([canteenId])
+  @@index([isDeleted])
+  @@map("devices")
+}
+
+enum DeviceType {
+  POS
+  RECHARGE_KIOSK
+  GATE
+  FACE_TERMINAL
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+}
+
+model DeviceCommandLog {
+  id        String   @id @default(uuid())
+  deviceId  String   @map("device_id")
+  device    Device   @relation(fields: [deviceId], references: [id])
+  command   String   @db.VarChar(50)
+  params    Json?
+  status    String   @db.VarChar(20) // SENT, SUCCESS, FAILED, TIMEOUT
+  response  Json?
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([deviceId])
+  @@map("device_command_logs")
+}
+
+// =============================================================================
+// 13. 系统配置 (System Config)
+// =============================================================================
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique @db.VarChar(100)
+  value     Json
+  module    String   @db.VarChar(50)
+  remark    String?  @db.VarChar(200)
+  updatedBy String?  @map("updated_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}
+
+model Announcement {
+  id          String    @id @default(uuid())
+  title       String    @db.VarChar(200)
+  content     String    @db.Text
+  type        String    @db.VarChar(50)
+  isTop       Boolean   @default(false) @map("is_top")
+  isPublished Boolean   @default(false) @map("is_published")
+  publishedAt DateTime? @map("published_at")
+  expireAt    DateTime? @map("expire_at")
+  // Data Permission
+  canteenId   String?   @map("canteen_id")
+  siteId      String?   @map("site_id")
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([isDeleted])
+  @@map("announcements")
+}
+
+model Holiday {
+  id        String   @id @default(uuid())
+  date      DateTime @unique @db.Date
+  name      String   @db.VarChar(50)
+  type      String   @db.VarChar(20) // holiday, workday
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("holidays")
+}
+
+model CustomAttribute {
+  id         String   @id @default(uuid())
+  entityType String   @map("entity_type") @db.VarChar(50)
+  fieldName  String   @map("field_name") @db.VarChar(50)
+  fieldType  String   @map("field_type") @db.VarChar(20)
+  label      String   @db.VarChar(50)
+  options    Json?
+  isRequired Boolean  @default(false) @map("is_required")
+  sortOrder  Int      @default(0) @map("sort_order")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([entityType, fieldName])
+  @@map("custom_attributes")
+}
+
+model Dictionary {
+  id        String   @id @default(uuid())
+  category  String   @db.VarChar(50)
+  code      String   @db.VarChar(50)
+  name      String   @db.VarChar(100)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, code])
+  @@map("dictionaries")
+}
+
+model IdGeneratorRule {
+  id          String    @id @default(uuid())
+  entityType  String    @unique @map("entity_type") @db.VarChar(50)
+  prefix      String    @db.VarChar(20)
+  dateFormat  String?   @map("date_format") @db.VarChar(20)
+  serialLen   Int       @default(4) @map("serial_len")
+  currentSeq  Int       @default(0) @map("current_seq")
+  lastResetAt DateTime? @map("last_reset_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("id_generator_rules")
+}
+
+// =============================================================================
+// 14. 审计日志 (Audit Log) - CORE
+// =============================================================================
+
+model AuditLog {
+  id           String     @id @default(uuid())
+  traceId      String     @map("trace_id") @db.VarChar(64)
+  operatorId   String     @map("operator_id")
+  operator     AdminUser? @relation(fields: [operatorId], references: [id])
+  operatorName String?    @map("operator_name") @db.VarChar(50)
+  module       String     @db.VarChar(50) // hr, org, account, trade, refund, appeal, dish, device, system
+  action       String     @db.VarChar(50) // CREATE, UPDATE, DELETE, APPROVE, REJECT, etc.
+  targetType   String?    @map("target_type") @db.VarChar(50)
+  targetId     String?    @map("target_id")
+  targetName   String?    @map("target_name") @db.VarChar(100)
+  beforeValue  Json?      @map("before_value")
+  afterValue   Json?      @map("after_value")
+  ip           String?    @db.VarChar(45)
+  userAgent    String?    @map("user_agent") @db.VarChar(500)
+  // Data Permission for filtering
+  deptId       String?    @map("dept_id")
+  canteenId    String?    @map("canteen_id")
+  siteId       String?    @map("site_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@index([operatorId, createdAt])
+  @@index([module, action])
+  @@index([targetType, targetId])
+  @@index([deptId])
+  @@index([canteenId])
+  @@index([siteId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// =============================================================================
+// 15. 导出任务 (Export Jobs)
+// =============================================================================
+
+model ExportJob {
+  id          String          @id @default(uuid())
+  type        String          @db.VarChar(50) // report type
+  status      ExportJobStatus @default(PROCESSING)
+  params      Json?
+  fileUrl     String?         @map("file_url") @db.VarChar(500)
+  errorMsg    String?         @map("error_msg") @db.VarChar(500)
+  totalCount  Int?            @map("total_count")
+  createdBy   String          @map("created_by")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  completedAt DateTime?       @map("completed_at")
+
+  @@index([createdBy])
+  @@index([status])
+  @@map("export_jobs")
+}
+
+enum ExportJobStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}

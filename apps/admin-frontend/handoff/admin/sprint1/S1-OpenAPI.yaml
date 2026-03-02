@@ -1,0 +1,19 @@
+# 引用自 admin-openapi-draft.yaml
+# 只包含 1-12 范围
+openapi: 3.1.0
+info:
+  title: Smart Canteen Admin API - Sprint 1
+  version: 1.0.0
+paths:
+  /people/archives:
+    get: { summary: "人员列表" }
+    post: { summary: "新增档案" }
+  /people/archives/{id}:
+    put: { summary: "修改档案" }
+    delete: { summary: "软删除" }
+  /approvals/batch:
+    post: { summary: "批量审批" }
+  /org/tree:
+    get: { summary: "组织树" }
+  /blacklist/{id}/lift:
+    put: { summary: "解除黑名单" }

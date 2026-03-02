@@ -1,0 +1,95 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂管理系统 - 统一 API (Sprint 1-2)
+  version: 1.1.0
+  description: 覆盖人员管理 (1-12) 与 消费管理 (13-31) 核心契约。
+
+servers:
+  - url: /api/admin
+    description: 主网关基础路径
+
+paths:
+  # --- 13. 账户管理 ---
+  /consume/accounts/{id}/adjust:
+    post:
+      summary: 账户调账与手动充值
+      description: |
+        - 权限: `CONSUME_ACCOUNT_ADJUST`
+        - 必须提供 `X-Request-ID` 以实现 24H 强幂等。
+      parameters:
+        - name: X-Request-ID
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, type, reason]
+              properties:
+                amount: { type: number, format: decimal, description: "调整金额 (正数为增，负数为减)" }
+                type: { type: string, enum: [recharge, deduction], description: "业务分类" }
+                reason: { type: string, minLength: 5 }
+      responses:
+        '200': { description: "操作成功" }
+        '409': { description: "请求重复 (幂等拦截)" }
+
+  # --- 15. 退款审核 ---
+  /consume/refunds/audit:
+    post:
+      summary: 退款审批执行
+      description: |
+        - 权限: `CONSUME_REFUND_AUDIT`
+        - 通过后将触发后端进入支付网关异步退款流程。
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, action]
+              properties:
+                id: { type: string }
+                action: { type: string, enum: [approve, reject] }
+                reason: { type: string }
+      responses:
+        '200': { description: "审批已提交" }
+
+  # --- 17-29. 报表中心 ---
+  /consume/reports/{type}/export:
+    get:
+      summary: 创建异步导出任务
+      description: |
+        - 权限: `CONSUME_REPORT_VIEW`
+        - 返回 jobId 供前端轮询或通知。
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId: { type: string }
+
+  # --- 31. 设备管理 ---
+  /consume/devices/{id}/command:
+    post:
+      summary: 下发远程指令
+      description: |
+        - 权限: `CONSUME_DEVICE_MANAGE`
+        - 指令进入 Redis 队列，设备心跳拉取。
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [command]
+              properties:
+                command: { type: string, enum: [reboot, sync, calibrate] }
+      responses:
+        '200': { description: "指令已入队" }

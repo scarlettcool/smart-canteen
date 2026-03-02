@@ -1,0 +1,47 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂 - 人员管理 API (Sprint 1)
+  version: 1.0.0
+servers:
+  - url: /api/admin
+paths:
+  /people/archives:
+    post:
+      summary: 新增人员档案 (ADM-S1-PEO-ARCH-001)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '409': { description: Conflict }
+  /people/archives/{id}:
+    get:
+      summary: 获取人员详情 (ADM-S1-PEO-ARCH-004)
+      responses:
+        '200': { description: OK }
+    put:
+      summary: 修改人员档案 (ADM-S1-PEO-ARCH-003)
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: 删除人员档案 (ADM-S1-PEO-ARCH-005)
+      responses:
+        '200': { description: OK }
+  /org/move:
+    put:
+      summary: 移动部门 (ADM-S1-PEO-ORG-001)
+      responses:
+        '200': { description: OK }
+  /approvals/batch:
+    post:
+      summary: 批量处理审批 (ADM-S1-PEO-AUD-001, 002)
+      responses:
+        '200': { description: OK }
+  /rules/preview:
+    post:
+      summary: 规则预览 (ADM-S1-PEO-OPT-001)
+      responses:
+        '200': { description: OK }
+  /blacklist/{id}/lift:
+    put:
+      summary: 解除黑名单 (ADM-S1-PEO-BL-001)
+      responses:
+        '200': { description: OK }

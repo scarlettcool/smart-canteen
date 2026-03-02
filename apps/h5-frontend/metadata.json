@@ -1,0 +1,7 @@
+{
+  "name": "Smart Canteen User App",
+  "description": "A modern, professional H5 application for smart canteen services including wallet management, reservations, and dining history.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

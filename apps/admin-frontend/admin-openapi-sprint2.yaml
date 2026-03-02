@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂管理系统 - 消费管理 API (Sprint 2)
+  version: 1.0.0
+  description: 覆盖账户、交易、退款、申诉、报表及设备管理。
+
+servers:
+  - url: /api/admin/consume
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code: { type: integer, description: "0 为成功" }
+        message: { type: string }
+        data: { type: object, nullable: true }
+        traceId: { type: string, format: uuid }
+      required: [code, message, traceId]
+
+paths:
+  # 13 账户管理
+  /accounts:
+    get:
+      summary: 获取账户列表
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /accounts/{id}/adjust:
+    post:
+      summary: 余额调整
+      parameters:
+        - name: requestId
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: { type: number }
+                type: { type: string, enum: [recharge, deduction] }
+                reason: { type: string }
+  
+  # 14 交易管理
+  /trades:
+    get:
+      summary: 交易明细查询
+  /trades/{id}/correct:
+    post:
+      summary: 交易冲正
+
+  # 15 退款管理
+  /refunds/audit:
+    post:
+      summary: 退款审批
+
+  # 17-29 报表中心
+  /reports/{type}:
+    get:
+      summary: 报表通用查询接口
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema: { type: string }
+  /reports/{type}/export:
+    get:
+      summary: 报表异步导出
+
+  # 31 设备管理
+  /devices:
+    get:
+      summary: 设备列表
+  /devices/{id}/command:
+    post:
+      summary: 下发设备指令

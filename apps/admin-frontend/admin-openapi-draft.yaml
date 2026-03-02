@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂管理系统 - 人员管理 API (Sprint 1)
+  description: |
+    政务级智慧食堂后台管理系统接口契约。
+    涵盖人员档案、组织架构、注册审批、预录资料、统计报表、自定义配置及黑名单。
+    
+    规范要求：
+    - 所有接口均包含审计字段 (createdAt, createdBy, etc.)
+    - 响应格式统一采用 ApiResponse 结构
+    - 分页列表采用 PageResponse 结构
+    - 权限控制通过 Permission 标签标识
+  version: 1.0.0
+
+servers:
+  - url: /api/admin
+    description: 管理后台基础路径
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # --- 基础响应模型 ---
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: 业务状态码 (0 为成功)
+        message:
+          type: string
+          description: 响应消息
+        data:
+          type: object
+          nullable: true
+        traceId:
+          type: string
+          format: uuid
+          description: 链路追踪 ID
+      required: [code, message, data]
+
+    PageResponse:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+      required: [list, page, pageSize, total]
+
+    # --- 业务基类 ---
+    AuditFields:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        isDeleted:
+          type: boolean
+          default: false
+
+    # --- 核心实体 ---
+    Person:
+      allOf:
+        - $ref: '#/components/schemas/AuditFields'
+        - type: object
+          properties:
+            id: { type: string }
+            staffId: { type: string, description: "员工工号" }
+            name: { type: string }
+            phone: { type: string }
+            deptId: { type: string }
+            deptName: { type: string }
+            status:
+              type: string
+              enum: [active, suspended, resigned]
+            balance: { type: string, description: "账户余额(Decimal)" }
+            retiredDate: { type: string, format: date }
+            birthday: { type: string, format: date }
+
+    Department:
+      allOf:
+        - $ref: '#/components/schemas/AuditFields'
+        - type: object
+          properties:
+            id: { type: string }
+            parentId: { type: string, nullable: true }
+            name: { type: string }
+            managerId: { type: string, nullable: true }
+            managerName: { type: string, nullable: true }
+            sortOrder: { type: integer }
+            memberCount: { type: integer }
+
+    # --- 导入导出任务 ---
+    ImportJob:
+      type: object
+      properties:
+        jobId: { type: string }
+        status: { type: string, enum: [processing, completed, failed, partial_failed] }
+        totalCount: { type: integer }
+        successCount: { type: integer }
+        failCount: { type: integer }
+        errorReportUrl: { type: string, nullable: true }
+
+  responses:
+    SuccessResponse:
+      description: 操作成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    
+    ValidationError:
+      description: 字段校验失败 (40001)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+paths:
+  # --- 1. 人员档案 (Personnel Archives) ---
+  /people/archives:
+    get:
+      tags: [People]
+      summary: 获取人员档案列表
+      description: Permission: PEOPLE_ARCHIVE_READ
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: keyword
+          in: query
+          schema: { type: string }
+        - name: deptId
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: 分页数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageResponse'
+    post:
+      tags: [People]
+      summary: 新增人员档案
+      description: Permission: PEOPLE_ARCHIVE_WRITE
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /people/archives/{id}:
+    get:
+      tags: [People]
+      summary: 人员详情
+      description: Permission: PEOPLE_ARCHIVE_READ
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+    put:
+      tags: [People]
+      summary: 更新人员档案
+      description: Permission: PEOPLE_ARCHIVE_WRITE
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+    delete:
+      tags: [People]
+      summary: 软删除/禁用档案
+      description: Permission: PEOPLE_ARCHIVE_WRITE
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /people/import:
+    post:
+      tags: [People]
+      summary: 批量导入人员
+      description: Permission: PEOPLE_ARCHIVE_IMPORT
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                duplicatePolicy: { type: string, enum: [skip, overwrite, merge], default: skip }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+
+  /people/export:
+    get:
+      tags: [People]
+      summary: 导出人员数据
+      description: Permission: PEOPLE_ARCHIVE_EXPORT
+      parameters:
+        - name: deptId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: 返回 Excel 流或签名的下载链接
+
+  # --- 2. 组织架构 (Org Structure) ---
+  /org/tree:
+    get:
+      tags: [Org]
+      summary: 获取部门树
+      description: Permission: PEOPLE_ORG_READ
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /org/departments:
+    post:
+      tags: [Org]
+      summary: 创建部门
+      description: Permission: PEOPLE_ORG_MANAGE
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /org/move:
+    put:
+      tags: [Org]
+      summary: 移动部门/调整层级
+      description: Permission: PEOPLE_ORG_MANAGE
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deptId: { type: string }
+                targetParentId: { type: string }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /org/history:
+    get:
+      tags: [Org]
+      summary: 获取架构变更历史
+      description: Permission: PEOPLE_ORG_AUDIT
+      responses:
+        '200':
+          $ref: '#/components/schemas/PageResponse'
+
+  # --- 3. 注册审批 (Registration Approval) ---
+  /approvals:
+    get:
+      tags: [Approval]
+      summary: 待审批列表
+      description: Permission: PEOPLE_AUDIT_READ
+      responses:
+        '200':
+          $ref: '#/components/schemas/PageResponse'
+
+  /approvals/batch:
+    post:
+      tags: [Approval]
+      summary: 批量通过/驳回
+      description: Permission: PEOPLE_AUDIT_OPERATE
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids: { type: array, items: { type: string } }
+                action: { type: string, enum: [pass, reject] }
+                rejectReason: { type: string, description: "驳回动作时必填" }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /approvals/{id}/logs:
+    get:
+      tags: [Approval]
+      summary: 获取审批日志
+      description: Permission: PEOPLE_AUDIT_READ
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  # --- 4. 预录资料 (Pre-recorded Data) ---
+  /pre-records/convert:
+    post:
+      tags: [PreRecord]
+      summary: 预录转正式档案
+      description: Permission: PEOPLE_ARCHIVE_IMPORT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preRecordId: { type: string }
+                conflictResolution: { type: string, enum: [force, manual] }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  # --- 5-8. 统计报表 (Reports) ---
+  /reports/resigned:
+    get:
+      tags: [Reports]
+      summary: 离职人员明细表
+      description: Permission: PEOPLE_REPORT_READ
+      responses:
+        '200':
+          $ref: '#/components/schemas/PageResponse'
+
+  /reports/birthday:
+    get:
+      tags: [Reports]
+      summary: 近期生日人员表
+      description: Permission: PEOPLE_REPORT_READ
+      responses:
+        '200':
+          $ref: '#/components/schemas/PageResponse'
+
+  /reports/stats/overview:
+    get:
+      tags: [Reports]
+      summary: 统计看板数据
+      description: Permission: PEOPLE_REPORT_READ
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  # --- 9-10. 自定义配置 (Options) ---
+  /options/attributes:
+    get:
+      tags: [Options]
+      summary: 获取自定义属性配置
+      description: Permission: PEOPLE_CONFIG_ATTR
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+    post:
+      tags: [Options]
+      summary: 添加属性
+      description: Permission: PEOPLE_CONFIG_ATTR
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /options/dictionaries:
+    get:
+      tags: [Options]
+      summary: 字典列表
+      description: Permission: PEOPLE_CONFIG_ATTR
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  # --- 11. 编号规则 (ID Rule) ---
+  /rules/id-generate/preview:
+    post:
+      tags: [Rule]
+      summary: 规则生成预览
+      description: Permission: PEOPLE_CONFIG_ATTR
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formula: { type: string }
+                currentSerial: { type: integer }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  # --- 12. 黑名单 (Blacklist) ---
+  /blacklist:
+    get:
+      tags: [Blacklist]
+      summary: 黑名单列表
+      description: Permission: PEOPLE_BLACKLIST_READ
+      responses:
+        '200':
+          $ref: '#/components/schemas/PageResponse'
+    post:
+      tags: [Blacklist]
+      summary: 拉入黑名单
+      description: Permission: PEOPLE_BLACKLIST_ADMIN
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                personId: { type: string }
+                reason: { type: string }
+                type: { type: string, enum: [temporary, permanent] }
+                deadline: { type: string, format: date, nullable: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /blacklist/{id}/lift:
+    put:
+      tags: [Blacklist]
+      summary: 解除限制
+      description: Permission: PEOPLE_BLACKLIST_ADMIN
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                liftReason: { type: string }
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'

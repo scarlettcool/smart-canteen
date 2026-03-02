@@ -1,0 +1,50 @@
+{
+  "name": "smart-canteen",
+  "version": "1.0.0",
+  "description": "智慧食堂 - 全栈管理系统",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "generate:types": "openapi-typescript ./SPEC/03_API_CONTRACT.openapi.yaml -o ./shared/api-types/index.ts",
+    "generate:client": "openapi-generator-cli generate -i ./SPEC/03_API_CONTRACT.openapi.yaml -g typescript-fetch -o ./shared/api-client --additional-properties=supportsES6=true,typescriptThreePlus=true",
+    "generate:prisma": "prisma generate --schema=./SPEC/02_DB_SCHEMA.prisma",
+    "db:migrate:dev": "prisma migrate dev --schema=./SPEC/02_DB_SCHEMA.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=./SPEC/02_DB_SCHEMA.prisma",
+    "db:push": "prisma db push --schema=./SPEC/02_DB_SCHEMA.prisma",
+    "db:studio": "prisma studio --schema=./SPEC/02_DB_SCHEMA.prisma",
+    "gates:check": "node scripts/check-sync.js && node scripts/check-audit-coverage.js && node scripts/check-rbac-bindings.js",
+    "gates:sync": "npm run generate:types && npm run generate:prisma",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:debug": "playwright test --debug",
+    "e2e:report": "playwright show-report e2e/reports/html",
+    "e2e:ci": "CI=true playwright test --reporter=list,json",
+    "precommit": "npm run gates:check && npm run lint && npm run typecheck"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4",
+    "@playwright/test": "^1.41.0",
+    "@types/node": "^20.11.0",
+    "eslint": "^8.56.0",
+    "openapi-typescript": "^6.7.4",
+    "prettier": "^3.2.4",
+    "prisma": "^5.9.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0",
+    "yaml": "^2.3.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,2539 @@
+{
+  "config": {
+    "configFile": "/Users/cocorui/Desktop/newtest/智慧食堂/playwright.config.ts",
+    "rootDir": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/cocorui/Desktop/newtest/智慧食堂/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.setup\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/cocorui/Desktop/newtest/智慧食堂/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-chromium",
+        "name": "admin-chromium",
+        "testDir": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/cocorui/Desktop/newtest/智慧食堂/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "smoke",
+        "name": "smoke",
+        "testDir": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "e2e/reports/html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e/reports/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "cwd": "apps/admin-frontend",
+      "url": "http://localhost:3039",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "authenticate as admin",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13550,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=\"username\"], #username') to be visible\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=\"username\"], #username') to be visible\u001b[22m\n\n    at /Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests/auth.setup.ts:14:16",
+                    "location": {
+                      "file": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests/auth.setup.ts",
+                      "column": 16,
+                      "line": 14
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[90m// Wait for login form\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[name=\"username\"], #username'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     \u001b[90m// Fill login form\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"username\"], #username'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests/auth.setup.ts",
+                        "column": 16,
+                        "line": 14
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=\"username\"], #username') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[90m// Wait for login form\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[name=\"username\"], #username'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     \u001b[90m// Fill login form\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"username\"], #username'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests/auth.setup.ts:14:16\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-05T15:46:03.444Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/cocorui/Desktop/newtest/智慧食堂/test-results/auth.setup.ts-authenticate-as-admin-setup/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/cocorui/Desktop/newtest/智慧食堂/test-results/auth.setup.ts-authenticate-as-admin-setup/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/cocorui/Desktop/newtest/智慧食堂/e2e/tests/auth.setup.ts",
+                    "column": 16,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-1580989d32f149e984ed",
+          "file": "auth.setup.ts",
+          "line": 9,
+          "column": 6
+        },
+        {
+          "title": "create auth directory",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-05T15:46:17.722Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-0b5ba6ec9f8874261ec5",
+          "file": "auth.setup.ts",
+          "line": 33,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "01-admin-login.spec.ts",
+      "file": "01-admin-login.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "01. Admin Login",
+          "file": "01-admin-login.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should login successfully and navigate to dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "00ffed8dff4d6804071f-02a8df525dd70c4c385a",
+              "file": "01-admin-login.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "should login successfully and navigate to dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "00ffed8dff4d6804071f-9f41b8e60f6326951663",
+              "file": "01-admin-login.spec.ts",
+              "line": 22,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "02-personnel-archive.spec.ts",
+      "file": "02-personnel-archive.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "02. Personnel Archive CRUD",
+          "file": "02-personnel-archive.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to personnel archive list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-e6b8dd6fe2a80d4a9a42",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 33,
+              "column": 9
+            },
+            {
+              "title": "should create new personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-d80f7c6de5e9cdf318de",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "should edit personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-bd6d9ebcfed77f2fc1db",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 93,
+              "column": 9
+            },
+            {
+              "title": "should soft delete personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-8c6619c80204d373030e",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 138,
+              "column": 9
+            },
+            {
+              "title": "should navigate to personnel archive list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-362091e289ffee5c6e7d",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 33,
+              "column": 9
+            },
+            {
+              "title": "should create new personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-281a9b3b8100d1396e7e",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "should edit personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-140f17a816ea97825a1b",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 93,
+              "column": 9
+            },
+            {
+              "title": "should soft delete personnel archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ba20dc9948e834e4bca-e8f6a782ee3abf5d4f57",
+              "file": "02-personnel-archive.spec.ts",
+              "line": 138,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "03-import-personnel.spec.ts",
+      "file": "03-import-personnel.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "03. Import Personnel",
+          "file": "03-import-personnel.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should download import template",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-ee405641d169ecfef05c",
+              "file": "03-import-personnel.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should import personnel with error report",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-dd8aa1b877fe8a61528a",
+              "file": "03-import-personnel.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "should show import progress for large files",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-6503f79112997335f035",
+              "file": "03-import-personnel.spec.ts",
+              "line": 124,
+              "column": 9
+            },
+            {
+              "title": "should download import template",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-b728981137bcf27abfc6",
+              "file": "03-import-personnel.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should import personnel with error report",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-50d631521c821bed09ae",
+              "file": "03-import-personnel.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "should show import progress for large files",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9bb02d19967e52e539e9-94d90857441bb992c43d",
+              "file": "03-import-personnel.spec.ts",
+              "line": 124,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "04-trade-ledger-export.spec.ts",
+      "file": "04-trade-ledger-export.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "04. Trade Ledger Export",
+          "file": "04-trade-ledger-export.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to trade ledger list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-71f28dacdb5ba9631011",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should filter ledger by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-2ddf01698eab558f398f",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 37,
+              "column": 9
+            },
+            {
+              "title": "should export ledger list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-9e987882109da243b819",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 74,
+              "column": 9
+            },
+            {
+              "title": "should show transaction details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-9842588ad0dbca586817",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 142,
+              "column": 9
+            },
+            {
+              "title": "should navigate to trade ledger list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-0b3283053dbba57ca80a",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should filter ledger by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-0d901f025d6d58f0065f",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 37,
+              "column": 9
+            },
+            {
+              "title": "should export ledger list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-18db564a348105049b26",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 74,
+              "column": 9
+            },
+            {
+              "title": "should show transaction details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "08284ccbb76e0fdfae71-44c3d91d3fd8857f38ee",
+              "file": "04-trade-ledger-export.spec.ts",
+              "line": 142,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "05-menu-publish.spec.ts",
+      "file": "05-menu-publish.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "05. Menu Publish Flow",
+          "file": "05-menu-publish.spec.ts",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to dish publish page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-7af118aa2979da818088",
+              "file": "05-menu-publish.spec.ts",
+              "line": 26,
+              "column": 9
+            },
+            {
+              "title": "should publish today menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-9382beaf413060e804b5",
+              "file": "05-menu-publish.spec.ts",
+              "line": 38,
+              "column": 9
+            },
+            {
+              "title": "should revoke published menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-d203a944f6d3fd904b40",
+              "file": "05-menu-publish.spec.ts",
+              "line": 88,
+              "column": 9
+            },
+            {
+              "title": "should log notification for menu changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-b64a91c91627e8145a05",
+              "file": "05-menu-publish.spec.ts",
+              "line": 131,
+              "column": 9
+            },
+            {
+              "title": "should navigate to dish publish page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-ccf059aba54c3578b9c0",
+              "file": "05-menu-publish.spec.ts",
+              "line": 26,
+              "column": 9
+            },
+            {
+              "title": "should publish today menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-96500fca949718fc186a",
+              "file": "05-menu-publish.spec.ts",
+              "line": 38,
+              "column": 9
+            },
+            {
+              "title": "should revoke published menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-f4c7ee75b20baac3e39e",
+              "file": "05-menu-publish.spec.ts",
+              "line": 88,
+              "column": 9
+            },
+            {
+              "title": "should log notification for menu changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db80e407e84f44a42304-9613664d1b94b80ddab6",
+              "file": "05-menu-publish.spec.ts",
+              "line": 131,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "06-complaint-reply.spec.ts",
+      "file": "06-complaint-reply.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "06. Complaint Reply Flow",
+          "file": "06-complaint-reply.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to feedback/complaint list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-a7ea9af458ea2a467aeb",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should reply to complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-130b795d2a88d6038b90",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 36,
+              "column": 9
+            },
+            {
+              "title": "should close complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-5d894c067179c125d78f",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 85,
+              "column": 9
+            },
+            {
+              "title": "should view complaint detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-7679d3d2a75766d775a1",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 130,
+              "column": 9
+            },
+            {
+              "title": "should filter complaints by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-0c3a1101f400f2d039f2",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 155,
+              "column": 9
+            },
+            {
+              "title": "should navigate to feedback/complaint list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-2d49948c6383dd09cd79",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 24,
+              "column": 9
+            },
+            {
+              "title": "should reply to complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-aebf2e1e2759b1692280",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 36,
+              "column": 9
+            },
+            {
+              "title": "should close complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-71622525ddf7931418d4",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 85,
+              "column": 9
+            },
+            {
+              "title": "should view complaint detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-68508aba400f13c606bd",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 130,
+              "column": 9
+            },
+            {
+              "title": "should filter complaints by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5be50892feb663503d1d-f977716a92c2352bcb0b",
+              "file": "06-complaint-reply.spec.ts",
+              "line": 155,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "07-operation-logs.spec.ts",
+      "file": "07-operation-logs.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "07. Operation Logs",
+          "file": "07-operation-logs.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to operation logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-b0148ce38f0a07f3c521",
+              "file": "07-operation-logs.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "should load and display audit logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-be599c0693c13b27cbd6",
+              "file": "07-operation-logs.spec.ts",
+              "line": 35,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by module",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-4452f62a9d514ab06977",
+              "file": "07-operation-logs.spec.ts",
+              "line": 71,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-7504c7e8ecce3591eace",
+              "file": "07-operation-logs.spec.ts",
+              "line": 111,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by action type",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-2531f0aba0cbd481941e",
+              "file": "07-operation-logs.spec.ts",
+              "line": 148,
+              "column": 9
+            },
+            {
+              "title": "should view log detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-7f229fc4d2d94f4340c2",
+              "file": "07-operation-logs.spec.ts",
+              "line": 173,
+              "column": 9
+            },
+            {
+              "title": "should verify smoke test actions in logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-821c3d1635c5db8fab0e",
+              "file": "07-operation-logs.spec.ts",
+              "line": 203,
+              "column": 9
+            },
+            {
+              "title": "should export operation logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-8340974d23dac866eb49",
+              "file": "07-operation-logs.spec.ts",
+              "line": 231,
+              "column": 9
+            },
+            {
+              "title": "should navigate to operation logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-6679a2f2a5486e07096e",
+              "file": "07-operation-logs.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "should load and display audit logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-639b93511afa47b15e33",
+              "file": "07-operation-logs.spec.ts",
+              "line": 35,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by module",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-542f3fc264561072e808",
+              "file": "07-operation-logs.spec.ts",
+              "line": 71,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-78b49b87c01dfc5a36f2",
+              "file": "07-operation-logs.spec.ts",
+              "line": 111,
+              "column": 9
+            },
+            {
+              "title": "should filter logs by action type",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-6f7a189614dc777ea857",
+              "file": "07-operation-logs.spec.ts",
+              "line": 148,
+              "column": 9
+            },
+            {
+              "title": "should view log detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-209c8c0fc9d9aaf256b5",
+              "file": "07-operation-logs.spec.ts",
+              "line": 173,
+              "column": 9
+            },
+            {
+              "title": "should verify smoke test actions in logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-5adcfbc637db6ade8db9",
+              "file": "07-operation-logs.spec.ts",
+              "line": 203,
+              "column": 9
+            },
+            {
+              "title": "should export operation logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1aaea44add19857b959d-9e285276c7847d1acc7d",
+              "file": "07-operation-logs.spec.ts",
+              "line": 231,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "integration.spec.ts",
+      "file": "integration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "integration.spec.ts",
+          "line": 50,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Admin login with valid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-d593eec8bff242b7103b",
+              "file": "integration.spec.ts",
+              "line": 51,
+              "column": 9
+            },
+            {
+              "title": "Admin login with invalid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-7551b87a474538fd90ff",
+              "file": "integration.spec.ts",
+              "line": 64,
+              "column": 9
+            },
+            {
+              "title": "Protected endpoint without token returns 401",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-1488e4284e3712b337ff",
+              "file": "integration.spec.ts",
+              "line": 72,
+              "column": 9
+            },
+            {
+              "title": "Token refresh works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-b243fe08fe3fb9ccac13",
+              "file": "integration.spec.ts",
+              "line": 77,
+              "column": 9
+            },
+            {
+              "title": "Admin login with valid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-19c032a81a0ed81b8568",
+              "file": "integration.spec.ts",
+              "line": 51,
+              "column": 9
+            },
+            {
+              "title": "Admin login with invalid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-b146bff49289f493678b",
+              "file": "integration.spec.ts",
+              "line": 64,
+              "column": 9
+            },
+            {
+              "title": "Protected endpoint without token returns 401",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-026d7ed473969b14ae18",
+              "file": "integration.spec.ts",
+              "line": 72,
+              "column": 9
+            },
+            {
+              "title": "Token refresh works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-68802aa25422f86f912e",
+              "file": "integration.spec.ts",
+              "line": 77,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "RBAC & Permissions",
+          "file": "integration.spec.ts",
+          "line": 98,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Super admin can access all endpoints",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-9d583047abf9ae9c3068",
+              "file": "integration.spec.ts",
+              "line": 108,
+              "column": 9
+            },
+            {
+              "title": "Get all roles",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-69252099c0bfc68ff46b",
+              "file": "integration.spec.ts",
+              "line": 128,
+              "column": 9
+            },
+            {
+              "title": "Get all permissions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-567cfc9a62ddd2fb403c",
+              "file": "integration.spec.ts",
+              "line": 141,
+              "column": 9
+            },
+            {
+              "title": "Super admin can access all endpoints",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-383a3f701f8ed5133802",
+              "file": "integration.spec.ts",
+              "line": 108,
+              "column": 9
+            },
+            {
+              "title": "Get all roles",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-44dabc2f32e8d7175796",
+              "file": "integration.spec.ts",
+              "line": 128,
+              "column": 9
+            },
+            {
+              "title": "Get all permissions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-cb2590e6b4aa92a4ef5e",
+              "file": "integration.spec.ts",
+              "line": 141,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "HR Module",
+          "file": "integration.spec.ts",
+          "line": 159,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-7443645273703ac6ad71",
+              "file": "integration.spec.ts",
+              "line": 170,
+              "column": 9
+            },
+            {
+              "title": "Get archives list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-ad00594918d633b5da1c",
+              "file": "integration.spec.ts",
+              "line": 190,
+              "column": 9
+            },
+            {
+              "title": "Update archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-9e766dbad199d4397efe",
+              "file": "integration.spec.ts",
+              "line": 201,
+              "column": 9
+            },
+            {
+              "title": "Delete archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-fd2f3fab66e8b966621e",
+              "file": "integration.spec.ts",
+              "line": 212,
+              "column": 9
+            },
+            {
+              "title": "Validate phone format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-1d5683e73b518e460604",
+              "file": "integration.spec.ts",
+              "line": 222,
+              "column": 9
+            },
+            {
+              "title": "Create archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-de9bba7147bdfc44df16",
+              "file": "integration.spec.ts",
+              "line": 170,
+              "column": 9
+            },
+            {
+              "title": "Get archives list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-c3593aeb258ea54f44e8",
+              "file": "integration.spec.ts",
+              "line": 190,
+              "column": 9
+            },
+            {
+              "title": "Update archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-963c1ac9a7aebd903dff",
+              "file": "integration.spec.ts",
+              "line": 201,
+              "column": 9
+            },
+            {
+              "title": "Delete archive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-2e2ec93dcbfde7c8a735",
+              "file": "integration.spec.ts",
+              "line": 212,
+              "column": 9
+            },
+            {
+              "title": "Validate phone format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-bff5237ceb9abbf51787",
+              "file": "integration.spec.ts",
+              "line": 222,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Audit Logs",
+          "file": "integration.spec.ts",
+          "line": 239,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Login creates audit log",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-29fec59b243c64a9e3ba",
+              "file": "integration.spec.ts",
+              "line": 249,
+              "column": 9
+            },
+            {
+              "title": "CRUD operations are logged",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-24a3b85907c69e6de120",
+              "file": "integration.spec.ts",
+              "line": 267,
+              "column": 9
+            },
+            {
+              "title": "Audit log contains required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-0508ec3c06c5abc1760c",
+              "file": "integration.spec.ts",
+              "line": 294,
+              "column": 9
+            },
+            {
+              "title": "Login creates audit log",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-b931178a365d5cad2781",
+              "file": "integration.spec.ts",
+              "line": 249,
+              "column": 9
+            },
+            {
+              "title": "CRUD operations are logged",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-642c6ad78ad2db21d027",
+              "file": "integration.spec.ts",
+              "line": 267,
+              "column": 9
+            },
+            {
+              "title": "Audit log contains required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-9e0d7827d0af362d4b3e",
+              "file": "integration.spec.ts",
+              "line": 294,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Organization",
+          "file": "integration.spec.ts",
+          "line": 316,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Get organization tree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-e5fcba9ab64d59e7aa5e",
+              "file": "integration.spec.ts",
+              "line": 326,
+              "column": 9
+            },
+            {
+              "title": "Get organization tree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-55504453e4a1a2eca4f3",
+              "file": "integration.spec.ts",
+              "line": 326,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Account Management",
+          "file": "integration.spec.ts",
+          "line": 340,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Get accounts list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-ab457cc5481ec81739df",
+              "file": "integration.spec.ts",
+              "line": 350,
+              "column": 9
+            },
+            {
+              "title": "Get accounts list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-0bab9723234c0a729a77",
+              "file": "integration.spec.ts",
+              "line": 350,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Security",
+          "file": "integration.spec.ts",
+          "line": 364,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Password is not returned in user data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-13fa1d5e6ebcec864839",
+              "file": "integration.spec.ts",
+              "line": 365,
+              "column": 9
+            },
+            {
+              "title": "SQL injection attempt is blocked",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-6d5435b93414b2730f16",
+              "file": "integration.spec.ts",
+              "line": 374,
+              "column": 9
+            },
+            {
+              "title": "XSS payload is sanitized",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-580656987e2dbb109161",
+              "file": "integration.spec.ts",
+              "line": 386,
+              "column": 9
+            },
+            {
+              "title": "Request without Content-Type is handled",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-e35abedc05e1a34a6f36",
+              "file": "integration.spec.ts",
+              "line": 408,
+              "column": 9
+            },
+            {
+              "title": "Password is not returned in user data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-b58150ccc4513f7eeedb",
+              "file": "integration.spec.ts",
+              "line": 365,
+              "column": 9
+            },
+            {
+              "title": "SQL injection attempt is blocked",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-998bc9a723a8ff2bd05f",
+              "file": "integration.spec.ts",
+              "line": 374,
+              "column": 9
+            },
+            {
+              "title": "XSS payload is sanitized",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-b721a96e236c2b42f090",
+              "file": "integration.spec.ts",
+              "line": 386,
+              "column": 9
+            },
+            {
+              "title": "Request without Content-Type is handled",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-81a808ca2076ecbc510f",
+              "file": "integration.spec.ts",
+              "line": 408,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "API Response Format",
+          "file": "integration.spec.ts",
+          "line": 422,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Success response has standard format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-4cc43b3b0e9855e06e73",
+              "file": "integration.spec.ts",
+              "line": 423,
+              "column": 9
+            },
+            {
+              "title": "Error response has standard format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-a3568a24c1f1598dd62b",
+              "file": "integration.spec.ts",
+              "line": 435,
+              "column": 9
+            },
+            {
+              "title": "Pagination response has required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-chromium",
+                  "projectName": "admin-chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-ecf7a8e7ad6b05eee0ac",
+              "file": "integration.spec.ts",
+              "line": 445,
+              "column": 9
+            },
+            {
+              "title": "Success response has standard format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-51e65e3a1dc9f6bf16eb",
+              "file": "integration.spec.ts",
+              "line": 423,
+              "column": 9
+            },
+            {
+              "title": "Error response has standard format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-f3ce4cf3fe19274d4574",
+              "file": "integration.spec.ts",
+              "line": 435,
+              "column": 9
+            },
+            {
+              "title": "Pagination response has required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "smoke",
+                  "projectName": "smoke",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4c8f7e420cc033ba00ea-bf3d8cf94cbab978bf2d",
+              "file": "integration.spec.ts",
+              "line": 445,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-05T15:46:02.837Z",
+    "duration": 14900.869999999999,
+    "expected": 1,
+    "skipped": 106,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

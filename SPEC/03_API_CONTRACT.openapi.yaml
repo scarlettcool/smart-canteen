@@ -1,0 +1,1001 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂统一 API 规范
+  version: 2.0.0
+servers:
+  - url: /api
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code: { type: integer }
+        message: { type: string }
+        data: { type: object }
+        traceId: { type: string }
+    PageRequest:
+      type: object
+      properties:
+        page: { type: integer, default: 1 }
+        pageSize: { type: integer, default: 20 }
+    PageResponse:
+      type: object
+      properties:
+        list: { type: array, items: { type: object } }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+    IdempotentRequest:
+      type: object
+      required: [requestId]
+      properties:
+        requestId: { type: string, format: uuid }
+security:
+  - bearerAuth: []
+
+paths:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: HR (人事档案)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /hr/archives:
+    get:
+      tags: [HR]
+      summary: 人员档案列表
+      parameters:
+        - { name: page, in: query, schema: { type: integer } }
+        - { name: pageSize, in: query, schema: { type: integer } }
+        - { name: keyword, in: query, schema: { type: string } }
+        - { name: deptId, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string } }
+      responses: { '200': { description: OK } }
+    post:
+      tags: [HR]
+      summary: 新增人员
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, staffId, phone]
+              properties:
+                name: { type: string }
+                staffId: { type: string }
+                phone: { type: string }
+                deptId: { type: string }
+      responses: { '200': { description: OK } }
+
+  /hr/archives/{id}:
+    get:
+      tags: [HR]
+      summary: 人员详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    put:
+      tags: [HR]
+      summary: 更新人员
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [HR]
+      summary: 删除人员(软删除)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /hr/archives/import:
+    post:
+      tags: [HR]
+      summary: 批量导入
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                duplicatePolicy: { type: string, enum: [skip, overwrite, merge] }
+      responses: { '200': { description: OK } }
+
+  /hr/archives/export:
+    get:
+      tags: [HR]
+      summary: 导出人员
+      responses: { '200': { description: Excel文件 } }
+
+  /hr/approvals:
+    get:
+      tags: [HR]
+      summary: 待审批列表
+      responses: { '200': { description: OK } }
+
+  /hr/approvals/{id}/pass:
+    post:
+      tags: [HR]
+      summary: 通过审批
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /hr/approvals/{id}/reject:
+    post:
+      tags: [HR]
+      summary: 驳回审批
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rejectReason]
+              properties:
+                rejectReason: { type: string }
+      responses: { '200': { description: OK } }
+
+  /hr/approvals/batch:
+    post:
+      tags: [HR]
+      summary: 批量审批
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, action]
+              properties:
+                ids: { type: array, items: { type: string } }
+                action: { type: string, enum: [pass, reject] }
+                rejectReason: { type: string }
+      responses: { '200': { description: OK } }
+
+  /hr/pre-records:
+    get:
+      tags: [HR]
+      summary: 预录资料列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [HR]
+      summary: 新增预录
+      responses: { '200': { description: OK } }
+
+  /hr/pre-records/{id}/convert:
+    post:
+      tags: [HR]
+      summary: 转正式档案
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conflictResolution: { type: string, enum: [force, manual] }
+      responses: { '200': { description: OK } }
+
+  /hr/blacklist:
+    get:
+      tags: [HR]
+      summary: 黑名单列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [HR]
+      summary: 加入黑名单
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, reason, type]
+              properties:
+                userId: { type: string }
+                reason: { type: string }
+                type: { type: string, enum: [temporary, permanent] }
+                deadline: { type: string, format: date }
+      responses: { '200': { description: OK } }
+
+  /hr/blacklist/{id}/lift:
+    put:
+      tags: [HR]
+      summary: 解除黑名单
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [liftReason]
+              properties:
+                liftReason: { type: string }
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: ORG (组织架构)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /org/tree:
+    get:
+      tags: [ORG]
+      summary: 组织架构树
+      responses: { '200': { description: OK } }
+
+  /org/departments:
+    post:
+      tags: [ORG]
+      summary: 新增部门
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                parentId: { type: string }
+                managerId: { type: string }
+      responses: { '200': { description: OK } }
+
+  /org/departments/{id}:
+    put:
+      tags: [ORG]
+      summary: 更新部门
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [ORG]
+      summary: 删除部门
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /org/move:
+    put:
+      tags: [ORG]
+      summary: 移动部门
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deptId, targetParentId]
+              properties:
+                deptId: { type: string }
+                targetParentId: { type: string }
+      responses: { '200': { description: OK } }
+
+  /org/history:
+    get:
+      tags: [ORG]
+      summary: 架构变更历史
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: ACCOUNT (账户管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /account/list:
+    get:
+      tags: [ACCOUNT]
+      summary: 账户列表
+      responses: { '200': { description: OK } }
+
+  /account/{id}:
+    get:
+      tags: [ACCOUNT]
+      summary: 账户详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /account/{id}/adjust:
+    post:
+      tags: [ACCOUNT]
+      summary: 调账
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, reason, requestId]
+              properties:
+                amount: { type: number }
+                reason: { type: string }
+                requestId: { type: string, format: uuid }
+      responses: { '200': { description: OK } }
+
+  /account/{id}/freeze:
+    post:
+      tags: [ACCOUNT]
+      summary: 冻结账户
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /account/{id}/unfreeze:
+    post:
+      tags: [ACCOUNT]
+      summary: 解冻账户
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: LEDGER (账务流水)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /ledger/logs:
+    get:
+      tags: [LEDGER]
+      summary: 流水列表
+      parameters:
+        - { name: userId, in: query, schema: { type: string } }
+        - { name: startDate, in: query, schema: { type: string, format: date } }
+        - { name: endDate, in: query, schema: { type: string, format: date } }
+      responses: { '200': { description: OK } }
+
+  /ledger/logs/{id}:
+    get:
+      tags: [LEDGER]
+      summary: 流水详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: TRADE (交易管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /trade/transactions:
+    get:
+      tags: [TRADE]
+      summary: 交易列表
+      parameters:
+        - { name: startDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: endDate, in: query, required: true, schema: { type: string, format: date } }
+      responses: { '200': { description: OK } }
+
+  /trade/transactions/{id}:
+    get:
+      tags: [TRADE]
+      summary: 交易详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /trade/transactions/{id}/correct:
+    post:
+      tags: [TRADE]
+      summary: 交易冲正
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string }
+      responses: { '200': { description: OK } }
+
+  /trade/checkout:
+    post:
+      tags: [TRADE]
+      summary: 点餐扣款(用户端)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [canteenId, items, totalAmount, requestId]
+              properties:
+                canteenId: { type: string }
+                items: { type: array, items: { type: object } }
+                totalAmount: { type: number }
+                requestId: { type: string, format: uuid }
+      responses: { '200': { description: OK } }
+
+  /trade/orders:
+    get:
+      tags: [TRADE]
+      summary: 订单列表(用户端)
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: REFUND (退款管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /refund/applications:
+    get:
+      tags: [REFUND]
+      summary: 退款申请列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [REFUND]
+      summary: 提交退款申请
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [orderId, amount, reason, requestId]
+              properties:
+                orderId: { type: string }
+                amount: { type: number }
+                reason: { type: string }
+                requestId: { type: string, format: uuid }
+      responses: { '200': { description: OK } }
+
+  /refund/applications/{id}:
+    get:
+      tags: [REFUND]
+      summary: 退款详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /refund/applications/{id}/approve:
+    post:
+      tags: [REFUND]
+      summary: 审核通过
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /refund/applications/{id}/reject:
+    post:
+      tags: [REFUND]
+      summary: 审核拒绝
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rejectReason]
+              properties:
+                rejectReason: { type: string }
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: APPEAL (申诉管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /appeal/list:
+    get:
+      tags: [APPEAL]
+      summary: 申诉列表
+      responses: { '200': { description: OK } }
+
+  /appeal/{id}:
+    get:
+      tags: [APPEAL]
+      summary: 申诉详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /appeal/{id}/accept:
+    post:
+      tags: [APPEAL]
+      summary: 受理申诉
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /appeal/{id}/reject:
+    post:
+      tags: [APPEAL]
+      summary: 驳回申诉
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rejectReason]
+              properties:
+                rejectReason: { type: string }
+      responses: { '200': { description: OK } }
+
+  /appeal/{id}/resolve:
+    post:
+      tags: [APPEAL]
+      summary: 解决申诉
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: MENU (餐厅菜单)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /menu/canteens:
+    get:
+      tags: [MENU]
+      summary: 餐厅列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [MENU]
+      summary: 新增餐厅
+      responses: { '200': { description: OK } }
+
+  /menu/canteens/{id}:
+    get:
+      tags: [MENU]
+      summary: 餐厅详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    put:
+      tags: [MENU]
+      summary: 更新餐厅
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /menu/canteens/{id}/toggle:
+    put:
+      tags: [MENU]
+      summary: 开关营业状态
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /menu/reservations:
+    get:
+      tags: [MENU]
+      summary: 预约列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [MENU]
+      summary: 创建预约(用户端)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mealType, dates]
+              properties:
+                mealType: { type: string, enum: [breakfast, lunch, dinner] }
+                dates: { type: array, items: { type: string, format: date } }
+      responses: { '200': { description: OK } }
+
+  /menu/reservations/{id}:
+    delete:
+      tags: [MENU]
+      summary: 取消预约
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /menu/capacity:
+    put:
+      tags: [MENU]
+      summary: 设置预约容量
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, mealType, capacity]
+              properties:
+                date: { type: string, format: date }
+                mealType: { type: string }
+                capacity: { type: integer }
+      responses: { '200': { description: OK } }
+
+  /menu/queue/take:
+    post:
+      tags: [MENU]
+      summary: 取号(用户端)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceType: { type: string }
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: DISH (菜品管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /dish/list:
+    get:
+      tags: [DISH]
+      summary: 菜품列表
+      parameters:
+        - { name: canteenId, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+      responses: { '200': { description: OK } }
+
+  /dish:
+    post:
+      tags: [DISH]
+      summary: 新增菜品
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, price, canteenId]
+              properties:
+                name: { type: string }
+                price: { type: number }
+                canteenId: { type: string }
+                categoryId: { type: string }
+                description: { type: string }
+      responses: { '200': { description: OK } }
+
+  /dish/{id}:
+    get:
+      tags: [DISH]
+      summary: 菜品详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    put:
+      tags: [DISH]
+      summary: 更新菜品
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [DISH]
+      summary: 删除菜品(软删除)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /dish/{id}/publish:
+    post:
+      tags: [DISH]
+      summary: 发布菜品
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /dish/{id}/unpublish:
+    post:
+      tags: [DISH]
+      summary: 下架菜品
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /dish/batch-publish:
+    post:
+      tags: [DISH]
+      summary: 批量发布
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids: { type: array, items: { type: string } }
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: REPORT (报表中心)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /report/hr/{type}:
+    get:
+      tags: [REPORT]
+      summary: 人事报表
+      parameters:
+        - { name: type, in: path, required: true, schema: { type: string, enum: [resigned, birthday, retired, overview, dept-distribution, trend] } }
+      responses: { '200': { description: OK } }
+
+  /report/trade/{type}:
+    get:
+      tags: [REPORT]
+      summary: 消费报表
+      parameters:
+        - { name: type, in: path, required: true, schema: { type: string } }
+        - { name: startDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: endDate, in: query, required: true, schema: { type: string, format: date } }
+      responses: { '200': { description: OK } }
+
+  /report/trade/{type}/export:
+    post:
+      tags: [REPORT]
+      summary: 导出报表(异步)
+      parameters: [{ name: type, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /report/exports/{jobId}:
+    get:
+      tags: [REPORT]
+      summary: 下载导出文件
+      parameters: [{ name: jobId, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: NOTIFY (通知公告)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /notify/notices:
+    get:
+      tags: [NOTIFY]
+      summary: 通知列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [NOTIFY]
+      summary: 发送通知
+      responses: { '200': { description: OK } }
+
+  /notify/announcements:
+    get:
+      tags: [NOTIFY]
+      summary: 公告列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [NOTIFY]
+      summary: 发布公告
+      responses: { '200': { description: OK } }
+
+  /notify/announcements/{id}:
+    put:
+      tags: [NOTIFY]
+      summary: 更新公告
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /notify/feedbacks:
+    get:
+      tags: [NOTIFY]
+      summary: 反馈列表(管理端)
+      responses: { '200': { description: OK } }
+
+  /notify/feedbacks/{id}/reply:
+    post:
+      tags: [NOTIFY]
+      summary: 回复反馈
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /notify/user-feedback:
+    post:
+      tags: [NOTIFY]
+      summary: 提交反馈(用户端)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, content]
+              properties:
+                type: { type: string, enum: [suggestion, complaint, appeal] }
+                content: { type: string }
+                relatedId: { type: string }
+                images: { type: array, items: { type: string } }
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: DEVICE (设备管理)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /device/list:
+    get:
+      tags: [DEVICE]
+      summary: 设备列表
+      responses: { '200': { description: OK } }
+
+  /device/{id}:
+    get:
+      tags: [DEVICE]
+      summary: 设备详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /device/bind:
+    post:
+      tags: [DEVICE]
+      summary: 绑定设备
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sn, canteenId]
+              properties:
+                sn: { type: string }
+                canteenId: { type: string }
+                name: { type: string }
+      responses: { '200': { description: OK } }
+
+  /device/{id}/unbind:
+    post:
+      tags: [DEVICE]
+      summary: 解绑设备
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /device/{id}/command:
+    post:
+      tags: [DEVICE]
+      summary: 发送指令
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [command]
+              properties:
+                command: { type: string }
+                params: { type: object }
+      responses: { '200': { description: OK } }
+
+  /device/{id}/restart:
+    post:
+      tags: [DEVICE]
+      summary: 重启设备
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: SYSTEM (系统设置)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /system/audit-logs:
+    get:
+      tags: [SYSTEM]
+      summary: 操作日志列表
+      parameters:
+        - { name: module, in: query, schema: { type: string } }
+        - { name: startDate, in: query, schema: { type: string, format: date } }
+        - { name: endDate, in: query, schema: { type: string, format: date } }
+      responses: { '200': { description: OK } }
+
+  /system/roles:
+    get:
+      tags: [SYSTEM]
+      summary: 角色列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [SYSTEM]
+      summary: 新增角色
+      responses: { '200': { description: OK } }
+
+  /system/roles/{id}:
+    put:
+      tags: [SYSTEM]
+      summary: 更新角色
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [SYSTEM]
+      summary: 删除角色
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /system/permissions:
+    get:
+      tags: [SYSTEM]
+      summary: 权限列表
+      responses: { '200': { description: OK } }
+
+  /system/admins:
+    get:
+      tags: [SYSTEM]
+      summary: 管理员列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [SYSTEM]
+      summary: 新增管理员
+      responses: { '200': { description: OK } }
+
+  /system/admins/{id}:
+    put:
+      tags: [SYSTEM]
+      summary: 更新管理员
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /system/custom-attributes:
+    get:
+      tags: [SYSTEM]
+      summary: 自定义属性列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [SYSTEM]
+      summary: 新增自定义属性
+      responses: { '200': { description: OK } }
+
+  /system/dictionaries:
+    get:
+      tags: [SYSTEM]
+      summary: 字典列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [SYSTEM]
+      summary: 新增字典项
+      responses: { '200': { description: OK } }
+
+  /system/id-rules/{entityType}:
+    get:
+      tags: [SYSTEM]
+      summary: 获取编号规则
+      parameters: [{ name: entityType, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    put:
+      tags: [SYSTEM]
+      summary: 更新编号规则
+      parameters: [{ name: entityType, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /system/holidays:
+    get:
+      tags: [SYSTEM]
+      summary: 节假日列表
+      responses: { '200': { description: OK } }
+    post:
+      tags: [SYSTEM]
+      summary: 新增节假日
+      responses: { '200': { description: OK } }
+
+  /system/consumption-config:
+    get:
+      tags: [SYSTEM]
+      summary: 消费配置
+      responses: { '200': { description: OK } }
+    put:
+      tags: [SYSTEM]
+      summary: 更新消费配置
+      responses: { '200': { description: OK } }
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOMAIN: USER (用户端)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /user/home:
+    get:
+      tags: [USER]
+      summary: 首页数据
+      responses: { '200': { description: OK } }
+
+  /user/register:
+    post:
+      tags: [USER]
+      summary: 员工注册
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, staffId]
+              properties:
+                name: { type: string }
+                phone: { type: string }
+                staffId: { type: string }
+                deptId: { type: string }
+      responses: { '200': { description: OK } }
+
+  /user/register/status:
+    get:
+      tags: [USER]
+      summary: 注册状态
+      responses: { '200': { description: OK } }
+
+  /user/profile:
+    get:
+      tags: [USER]
+      summary: 个人信息
+      responses: { '200': { description: OK } }
+    put:
+      tags: [USER]
+      summary: 更新个人信息
+      responses: { '200': { description: OK } }
+
+  /user/balance:
+    get:
+      tags: [USER]
+      summary: 余额查询
+      responses: { '200': { description: OK } }
+
+  /user/recharge:
+    post:
+      tags: [USER]
+      summary: 充值
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, requestId]
+              properties:
+                amount: { type: number }
+                requestId: { type: string, format: uuid }
+      responses: { '200': { description: OK } }
+
+  /user/coupons:
+    get:
+      tags: [USER]
+      summary: 优惠券列表
+      responses: { '200': { description: OK } }
+
+  /user/coupons/activate:
+    post:
+      tags: [USER]
+      summary: 激活优惠券
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses: { '200': { description: OK } }

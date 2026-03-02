@@ -1,0 +1,100 @@
+openapi: 3.1.0
+info:
+  title: 智慧食堂管理系统 - 统一 API (Sprint 1-2)
+  version: 1.1.0
+  description: 完整覆盖人员管理 (1-12) 与 消费管理 (13-31) 核心契约。
+
+servers:
+  - url: /api/admin
+    description: 管理后台主网关
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code: { type: integer, description: "0: 成功; 4xxxx: 客户端错误; 5xxxx: 服务端错误" }
+        message: { type: string }
+        data: { type: object, nullable: true }
+        traceId: { type: string, format: uuid }
+      required: [code, message, traceId]
+
+    AccountAdjustRequest:
+      type: object
+      required: [amount, type, reason]
+      properties:
+        amount: { type: number, format: decimal }
+        type: { type: string, enum: [recharge, deduction] }
+        reason: { type: string, minLength: 5 }
+
+paths:
+  # --- 账户管理 ---
+  /consume/accounts:
+    get:
+      summary: 获取账户列表 (支持数据域隔离)
+      tags: [Consume]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /consume/accounts/{id}/adjust:
+    post:
+      summary: 调账/手动充值
+      tags: [Consume]
+      parameters:
+        - name: X-Request-ID
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountAdjustRequest' }
+      responses:
+        '200': { description: "调账成功" }
+
+  # --- 交易明细 ---
+  /consume/trades:
+    get:
+      summary: 交易流水查询
+      tags: [Consume]
+  
+  /consume/trades/{id}/correct:
+    post:
+      summary: 交易冲正
+      tags: [Consume]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                reason: { type: string }
+
+  # --- 报表中心 ---
+  /consume/reports/{type}:
+    get:
+      summary: 13类报表统一查询接口
+      tags: [Report]
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema: { type: string }
+  
+  /consume/reports/{type}/export:
+    get:
+      summary: 报表异步下载
+      tags: [Report]
+
+  # --- 设备管理 ---
+  /consume/devices:
+    get:
+      summary: 终端设备列表
+      tags: [Device]
+  
+  /consume/devices/{id}/command:
+    post:
+      summary: 指令下发 (重启/同步/校准)
+      tags: [Device]
