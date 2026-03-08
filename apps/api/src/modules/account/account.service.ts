@@ -12,8 +12,16 @@ export class AccountService {
     ) { }
 
     async findAccounts(query: any) {
+        const where: any = { isDeleted: false };
+        if (query.keyword) {
+            where.OR = [
+                { name: { contains: query.keyword } },
+                { staffId: { contains: query.keyword } },
+                { phone: { contains: query.keyword } },
+            ];
+        }
         return this.prisma.paginate('user', {
-            where: { isDeleted: false, regStatus: 'APPROVED' },
+            where,
             page: query.page,
             pageSize: query.pageSize,
             include: { dept: true },
